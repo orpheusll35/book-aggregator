@@ -1,0 +1,128 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PriceComparisonTable from "../../components/PriceComparisonTable";
+import BookCard from "../../components/BookCard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Star, ArrowLeft } from "lucide-react";
+import { fetchBookById, fetchBooks } from "@/lib/fetchBooks";
+
+const { id } = Astro.params;
+const book = await fetchBookById(id as string);
+
+if (!book) {
+  return Astro.redirect("/404");
+}
+
+// Fetch all books for related items (we can optimize this later if DB grows too large)
+const allBooks = await fetchBooks();
+
+// Find related books (same category, excluding current)
+const relatedBooks = allBooks
+  .filter((b: any) => b.id !== book.id && b.categories.some((c: string) => book.categories.includes(c)))
+  .slice(0, 4);
+
+const inStockVendors = book.vendors.filter((v: any) => v.inStock);
+const bestVendor = inStockVendors.length > 0 
+  ? inStockVendors.sort((a, b) => a.price - b.price)[0]
+  : book.vendors.sort((a, b) => a.price - b.price)[0];
+const hasStock = inStockVendors.length > 0;
+---
+
+<Layout title={book.title}>
+  <div class="container px-4 md:px-6 py-8">
+     <div class="mb-6">
+       <Button variant="ghost" size="sm" asChild className="pl-0 hover:bg-transparent hover:text-primary">
+        <a href="/">
+          <ArrowLeft className="mr-2 h-4 w-4" /> Ana Sayfaya Dön
+        </a>
+      </Button>
+    </div>
+
+    <div class="grid md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-8 lg:gap-12">
+      {/* Left Column: Sticky Cover */}
+      <div class="space-y-6">
+         <div class="sticky top-24">
+          <div class="rounded-lg overflow-hidden border shadow-lg bg-muted aspect-[2/3] relative">
+            <img
+              src={book.coverImage}
+              alt={book.title}
+              class="w-full h-full object-cover"
+              transition:name={`book-cover-${book.id}`}
+              referrerpolicy="no-referrer"
+            />
+          </div>
+          <div className="mt-6 p-6 bg-paper rounded-lg border border-muted text-center shadow-sm">
+            <p className="text-sm font-medium text-muted-foreground mb-2 uppercase tracking-wider">En İyi Fiyat</p>
+            <div className="flex flex-col mb-6">
+              {hasStock ? (
+                <>
+                  {book.originalPrice && book.originalPrice > bestVendor.price && (
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg text-muted-foreground line-through decoration-red-400/50">
+                        {bestVendor.currency} {book.originalPrice.toFixed(2)}
+                      </span>
+                      <Badge className="bg-red-500 text-white border-none text-[10px] py-0 px-1.5 h-5">
+                        -%{Math.round(((book.originalPrice - bestVendor.price) / book.originalPrice) * 100)}
+                      </Badge>
+                    </div>
+                  )}
+                  <div className="text-5xl font-serif font-bold text-accent">
+                    {bestVendor.currency} {bestVendor.price.toFixed(2)}
+                  </div>
+                </>
+              ) : (
+                <div className="text-3xl font-serif font-bold text-red-500">Stokta Yok</div>
+              )}
+            </div>
+            <Button size="lg" className="w-full h-12 text-base bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg" asChild>
+              <a href={bestVendor?.url} target="_blank" rel="noopener noreferrer">
+                {bestVendor?.name} üzerinden Satın Al
+              </a>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+       {/* Right Column: Details & Comparison */}
+      <div className="space-y-10">
+        <div>
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold font-serif mb-4 text-ink leading-tight">{book.title}</h1>
+          <p class="text-2xl text-muted-foreground mb-6 font-serif">{book.author}</p>
+          
+           <div class="flex items-center gap-6 mb-8">
+            <div class="flex items-center text-amber-500 bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
+              <Star className="fill-current w-5 h-5 mr-2" />
+              <span class="font-bold text-lg">{book.rating}</span>
+            </div>
+            <div class="flex gap-2">
+              {book.categories.map((cat) => (
+                <Badge key={cat} variant="secondary" className="bg-paper text-ink border border-muted px-3 py-1">{cat}</Badge>
+              ))}
+            </div>
+          </div>
+
+           <div class="prose max-w-none text-lg text-slate-600 leading-relaxed font-sans">
+            <p>{book.description}</p>
+          </div>
+        </div>
+
+        <div class="border-t pt-10">
+          <h2 class="text-3xl font-bold font-serif mb-8 text-ink">Fiyatları Karşılaştır</h2>
+          <PriceComparisonTable vendors={book.vendors} client:visible />
+        </div>
+
+        {relatedBooks.length > 0 && (
+          <div class="border-t pt-10">
+             <h2 class="text-2xl font-bold font-serif mb-8 text-ink">Bunları da beğenebilirsiniz</h2>
+             <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+               {relatedBooks.map((b) => (
+                 <BookCard book={b} client:visible />
+               ))}
+             </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</Layout>

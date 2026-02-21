@@ -1,0 +1,33 @@
+---
+import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+---
+
+<nav class="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full">
+  <div class="container flex h-16 items-center px-4 md:px-6">
+    <a class="mr-6 flex items-center space-x-2" href="/">
+      <span class="text-xl font-bold tracking-tight text-primary">BookFinder</span>
+    </a>
+    <div class="flex flex-1 items-center justify-center space-x-2 md:justify-end">
+      <div class="w-full flex-1 md:w-auto md:flex-none">
+        <form action="/search">
+          <div class="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              name="q"
+              placeholder="Search books..."
+              className="w-full bg-background pl-8 md:w-[300px] lg:w-[400px]"
+            />
+          </div>
+        </form>
+      </div>
+      <nav class="flex items-center space-x-2">
+        <Button variant="ghost" size="sm" asChild>
+          <a href="/search">Browse</a>
+        </Button>
+      </nav>
+    </div>
+  </div>
+</nav>

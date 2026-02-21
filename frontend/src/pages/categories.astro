@@ -1,0 +1,53 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Container from "@/components/ui/container";
+import SectionHeader from "@/components/ui/section-header";
+import CategoryCard from "@/components/CategoryCard";
+import { fetchBooks } from "@/lib/fetchBooks";
+
+const books = await fetchBooks();
+
+// Calculate categories and counts dynamically
+const categoryCounts: Record<string, number> = {};
+books.forEach((book) => {
+  book.categories.forEach((cat) => {
+    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+  });
+});
+
+const categories = Object.entries(categoryCounts)
+  .map(([name, count]) => ({
+    name,
+    count: `${count} kitap`,
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name, "tr"));
+
+---
+
+<Layout title="Tüm Kategoriler">
+  <div class="bg-muted/30 min-h-screen py-10">
+    <Container>
+      <div class="mb-8">
+        <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+            <a href="/" class="hover:text-primary transition-colors">Anasayfa</a>
+            <span>/</span>
+            <span class="text-foreground font-medium">Kategoriler</span>
+        </div>
+        
+        <SectionHeader
+          title="Tüm Kategoriler"
+          subtitle="İlgi alanınıza uygun türü seçin ve kütüphanemizi keşfedin."
+        />
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        {categories.map((category) => (
+          <CategoryCard
+            name={category.name}
+            count={category.count}
+          />
+        ))}
+      </div>
+    </Container>
+  </div>
+</Layout>

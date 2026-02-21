@@ -1,0 +1,21 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Container from "@/components/ui/container";
+import ProfilePageWrapper from "@/components/profile/ProfilePageWrapper";
+import { fetchBooks } from "@/lib/fetchBooks";
+
+const books = await fetchBooks();
+---
+
+<Layout title="Profilim">
+  <div class="bg-muted/30 py-12 min-h-screen">
+    <Container>
+      <div class="mb-8">
+        <h1 class="text-3xl font-serif font-bold text-ink">Hesabım</h1>
+        <p class="text-muted-foreground">Profil ayarlarınızı ve tercihlerinizi yönetin.</p>
+      </div>
+      
+      <ProfilePageWrapper client:load books={books} />
+    </Container>
+  </div>
+</Layout>

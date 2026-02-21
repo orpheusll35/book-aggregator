@@ -1,0 +1,20 @@
+---
+import Layout from "../layouts/Layout.astro";
+import RegisterForm from "@/components/RegisterForm";
+import Container from "@/components/ui/container";
+---
+
+<Layout title="Kayıt Ol">
+  <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-muted/30 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    
+    {/* Decorative background blobs */}
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+      <div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-accent/5 rounded-full blur-3xl"></div>
+      <div class="absolute top-[20%] -right-[5%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <Container className="flex justify-center w-full">
+      <RegisterForm client:load />
+    </Container>
+  </div>
+</Layout>

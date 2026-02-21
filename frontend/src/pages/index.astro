@@ -1,0 +1,91 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "@/components/Header";
+import Container from "@/components/ui/container";
+import SectionHeader from "@/components/ui/section-header";
+import ActionCard from "@/components/ActionCard";
+import SurpriseMe from "@/components/SurpriseMe";
+import BookCard from "@/components/BookCard";
+import CategoryCard from "@/components/CategoryCard";
+import { fetchBooks } from "../lib/fetchBooks";
+
+const books = await fetchBooks();
+const popularBooks = books.slice(0, 6);
+
+// Calculate categories and counts dynamically
+const categoryCounts: Record<string, number> = {};
+books.forEach((book) => {
+  book.categories.forEach((cat) => {
+    categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+  });
+});
+
+const categories = Object.entries(categoryCounts)
+  .map(([name, count]) => ({
+    name,
+    count: `${count}`,
+  }))
+  .sort((a, b) => parseInt(b.count) - parseInt(a.count))
+  .slice(0, 12);
+---
+
+<Layout title="Anasayfa">
+  <Header client:visible />
+
+  <Container className="py-8 md:py-12 space-y-12 md:space-y-16">
+    
+    {/* Feature Cards Section */}
+    <div class="grid md:grid-cols-2 gap-6">
+      <ActionCard
+        title="Kitap Fiyatlarını Karşılaştır"
+        description="Farklı mağazalardaki en iyi fiyatları bulun ve tasarruf edin."
+        buttonText="Karşılaştır"
+        href="/search"
+        variant="default"
+        className="bg-white"
+      />
+      <ActionCard
+        title="Fırsatları Keşfet"
+        description="İndirimleri takip edin ve en iyi fırsatları kaçırmayın."
+        buttonText="Fırsatları Gör"
+        href="/deals"
+        variant="accent"
+      />
+      <div className="md:col-span-2 lg:col-span-1 flex justify-center">
+          <SurpriseMe client:load books={books} />
+      </div>
+    </div>
+
+    {/* Weekly Most Popular Books */}
+    <section>
+      <SectionHeader
+        title="Haftanın En Popüler Kitapları"
+        subtitle="Okuyucuların en çok tercih ettiği kitapları keşfedin."
+        actionLink="/search?sort=popular"
+      />
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
+        {popularBooks.map((book) => (
+          <BookCard book={book} client:visible />
+        ))}
+      </div>
+    </section>
+
+    {/* Categories Section */}
+    <section>
+      <SectionHeader
+        title="Kategoriler"
+        subtitle="İlgi alanınıza uygun türü seçin ve kitapları keşfedin."
+        actionLink="/categories"
+      />
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        {categories.map((category) => (
+          <CategoryCard
+            name={category.name}
+            count={category.count}
+          />
+        ))}
+      </div>
+    </section>
+
+  </Container>
+</Layout>

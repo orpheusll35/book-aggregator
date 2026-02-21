@@ -1,0 +1,77 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Container from "@/components/ui/container";
+import BookCard from "@/components/BookCard";
+import SectionHeader from "@/components/ui/section-header";
+import { fetchBooks } from "@/lib/fetchBooks";
+
+const { slug } = Astro.params;
+const books = await fetchBooks();
+
+// Find the category name that matches the slug
+// We store categories as they are (Capitalized), but URLs are slugified (lowercase with dashes)
+let categoryName = "";
+let categoryBooks = [];
+
+const allCategories = new Set<string>();
+books.forEach(book => book.categories.forEach(cat => allCategories.add(cat)));
+
+for (const cat of allCategories) {
+  if (cat.toLowerCase().replace(/ /g, "-") === slug) {
+    categoryName = cat;
+    categoryBooks = books.filter(book => book.categories.includes(cat));
+    break;
+  }
+}
+
+if (!categoryName) {
+  // If not found in books, check if it's one of the hardcoded placeholders
+  const homepageCategories = [
+    "Kurgu", "Kurgu Dışı", "Felsefe", "Psikoloji", "İş Dünyası", 
+    "Kişisel Gelişim", "Bilim", "Tarih", "Biyografi", "Teknoloji", 
+    "Sanat", "Romantik"
+  ];
+  
+  const found = homepageCategories.find(cat => cat.toLowerCase().replace(/ /g, "-") === slug);
+  if (found) {
+    categoryName = found;
+    categoryBooks = [];
+  } else {
+    return Astro.redirect("/404");
+  }
+}
+---
+
+<Layout title={`${categoryName} Kitapları`}>
+  <div class="bg-muted/30 min-h-screen py-10">
+    <Container>
+      <div class="mb-8">
+        <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <a href="/" class="hover:text-primary transition-colors">Anasayfa</a>
+          <span>/</span>
+          <a href="/categories" class="hover:text-primary transition-colors">Kategoriler</a>
+          <span>/</span>
+          <span class="text-foreground font-medium">{categoryName}</span>
+        </div>
+
+        <SectionHeader
+          title={categoryName}
+          subtitle={`"${categoryName}" kategorisindeki en iyi kitapları keşfedin.`}
+        />
+      </div>
+
+      {categoryBooks.length > 0 ? (
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {categoryBooks.map((book) => (
+            <BookCard book={book} client:load />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-20 bg-white rounded-xl border border-dashed">
+          <h3 class="text-lg font-medium text-muted-foreground">Bu kategoride henüz kitap bulunmuyor.</h3>
+          <p class="text-sm text-muted-foreground mt-2">Daha sonra tekrar kontrol edin!</p>
+        </div>
+      )}
+    </Container>
+  </div>
+</Layout>
