@@ -26,7 +26,7 @@ export default function ProfilePageWrapper({ books }: { books: Book[] }) {
                     <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center text-primary text-2xl font-bold mb-4">
                         RU
                     </div>
-                    <h2 className="font-serif font-bold text-xl text-ink">Remzi User</h2>
+                    <h2 className="font-serif font-bold text-xl text-ink">Örnek Kullanıcı</h2>
                     <p className="text-sm text-muted-foreground">remzi@example.com</p>
                 </div>
 

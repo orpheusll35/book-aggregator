@@ -35,7 +35,7 @@ export default function CategoryCard({ name, count }: CategoryCardProps) {
             <h3 className="text-xs font-semibold text-primary mb-0.5 group-hover:text-accent transition-colors line-clamp-1">
                 {name}
             </h3>
-            <span className="text-[10px] text-secondary font-medium">{count} books</span>
+            <span className="text-[10px] text-secondary font-medium">{count} kitap</span>
         </a>
     );
 }

@@ -11,7 +11,7 @@ export default function Header() {
                     <div className="flex items-center gap-8">
                         <a href="/" className="flex items-center gap-2">
                             <span className="text-xl font-bold tracking-tight text-primary">
-                                BookPrice
+                                KitapBul
                                 <span className="text-accent">.</span>
                             </span>
                         </a>

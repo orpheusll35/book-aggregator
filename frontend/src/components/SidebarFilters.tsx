@@ -10,10 +10,10 @@ export default function SidebarFilters() {
     return (
         <div className="space-y-6">
             <div>
-                <h3 className="mb-4 text-lg font-semibold">Filters</h3>
+                <h3 className="mb-4 text-lg font-semibold">Filtreler</h3>
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <Label>Price Range (${priceRange[0]} - ${priceRange[1]})</Label>
+                        <Label>Fiyat Aralığı ({priceRange[0]}₺ - {priceRange[1]}₺)</Label>
                         <Slider
                             defaultValue={[0, 50]}
                             max={100}
@@ -23,18 +23,18 @@ export default function SidebarFilters() {
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label>Availability</Label>
+                        <Label>Stok Durumu</Label>
                         <div className="flex items-center space-x-2">
                             <Checkbox id="instock" />
                             <label
                                 htmlFor="instock"
                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
-                                In Stock Only
+                                Sadece Stokta Olanlar
                             </label>
                         </div>
                     </div>
-                    <Button className="w-full">Apply Filters</Button>
+                    <Button className="w-full">Filtreleri Uygula</Button>
                 </div>
             </div>
         </div>

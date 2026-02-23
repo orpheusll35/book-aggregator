@@ -14,7 +14,7 @@ export default function SectionHeader({
     title,
     subtitle,
     actionLink,
-    actionText = "View All",
+    actionText = "Tümünü Gör",
     className,
 }: SectionHeaderProps) {
     return (

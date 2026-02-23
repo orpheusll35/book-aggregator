@@ -60,7 +60,7 @@ export default function BookCard({ book }: BookCardProps) {
             </div>
 
             {/* Invisible Link */}
-            <a href={`/book/${book.id}`} className="absolute inset-0 z-10" aria-label={`View ${book.title}`}></a>
+            <a href={`/book/${book.id}`} className="absolute inset-0 z-10" aria-label={`Kitabı incele: ${book.title}`}></a>
         </Card>
     );
 }

@@ -18,7 +18,7 @@ books.forEach((book) => {
 const categories = Object.entries(categoryCounts)
   .map(([name, count]) => ({
     name,
-    count: `${count} kitap`,
+    count: `${count}`,
   }))
   .sort((a, b) => a.name.localeCompare(b.name, "tr"));
 
