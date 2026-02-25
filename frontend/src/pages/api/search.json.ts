@@ -37,15 +37,20 @@ export const GET: APIRoute = async ({ request }) => {
 
         // Search in title or author using both original and wildcard pattern
         // This ensures we catch the record even if collation fails
-        supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,author.ilike.%${query}%,title.ilike.%${wildcardPattern}%,author.ilike.%${wildcardPattern}%`);
+        supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,author.ilike.%${query}%,title.ilike.%${wildcardPattern}%,author.ilike.%${wildcardPattern}%`)
+            .order('view_count', { ascending: false })
+            .order('id', { ascending: true });
+    } else {
+        supabaseQuery = supabaseQuery.order('view_count', { ascending: false })
+            .order('id', { ascending: true });
     }
 
     // We don't filter by categories in the supabaseQuery anymore, 
     // because its raw categories vs our simplified categories.
     // We will filter in-memory from the result set.
 
-    // Supabase has a default limit of 1000, which is fine for a search result
-    const { data: dbBooks, error } = await supabaseQuery.limit(1000);
+    // Increase limit to 2000 for broader coverage while maintaining performance
+    const { data: dbBooks, error } = await supabaseQuery.limit(2000);
 
     if (error) {
         return new Response(JSON.stringify({ error: error.message }), {
