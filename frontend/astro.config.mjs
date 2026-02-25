@@ -16,6 +16,7 @@ export default defineConfig({
   },
 
   adapter: node({
-    mode: 'standalone'
+    mode: 'standalone',
+    host: '0.0.0.0'
   })
 });
