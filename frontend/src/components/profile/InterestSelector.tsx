@@ -1,25 +1,31 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { currentUser } from "@/data/user";
+import { currentUser, getUserProfile, saveUserProfile } from "@/data/user";
 import { Check, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const AVAILABLE_INTERESTS = [
-    "Bilim Kurgu", "Fantastik", "Polisiye", "Tarih", "Biyografi",
-    "Kişisel Gelişim", "Psikoloji", "Felsefe", "Bilim", "Teknoloji",
-    "Sanat", "Edebiyat", "Çocuk", "Eğitim"
+    "Edebiyat", "Çocuk & Gençlik", "Eğitim & Sınavlar", "Tarih",
+    "Felsefe & Sosyoloji", "Psikoloji", "Kişisel Gelişim", "Din & Mitoloji",
+    "Bilim & Teknoloji", "Politika & Siyaset", "Ekonomi & İş", "Sanat & Tasarım",
+    "Yabancı Dil", "Yemek & Gastronomi", "Sağlık & Yaşam", "Çizgi Roman",
+    "Akademik", "Genel"
 ];
 
 export default function InterestSelector() {
-    const [selectedInterests, setSelectedInterests] = useState<string[]>(currentUser.interests);
+    const [selectedInterests, setSelectedInterests] = useState<string[]>(() => getUserProfile().interests);
 
     const toggleInterest = (interest: string) => {
-        setSelectedInterests(prev =>
-            prev.includes(interest)
-                ? prev.filter(i => i !== interest)
-                : [...prev, interest]
-        );
+        const newInterests = selectedInterests.includes(interest)
+            ? selectedInterests.filter(i => i !== interest)
+            : [...selectedInterests, interest];
+
+        setSelectedInterests(newInterests);
+
+        // Persist change
+        const profile = getUserProfile();
+        saveUserProfile({ ...profile, interests: newInterests });
     };
 
     return (
@@ -51,7 +57,11 @@ export default function InterestSelector() {
             </div>
 
             <div className="pt-4 border-t">
-                <Button variant="outline" onClick={() => setSelectedInterests(currentUser.interests)}>
+                <Button variant="outline" onClick={() => {
+                    setSelectedInterests([]);
+                    const profile = getUserProfile();
+                    saveUserProfile({ ...profile, interests: [] });
+                }}>
                     Tümünü Temizle
                 </Button>
             </div>

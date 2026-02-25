@@ -2,16 +2,19 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { currentUser } from "@/data/user";
+import { currentUser, getUserProfile, saveUserProfile } from "@/data/user";
 import { User, Mail, Calendar, Save } from "lucide-react";
 
 export default function PersonalInfoForm() {
     const [isLoading, setIsLoading] = useState(false);
-    const [formData, setFormData] = useState({
-        name: currentUser.name,
-        email: currentUser.email,
-        age: currentUser.age || "",
-        gender: currentUser.gender || "prefer-not-to-say",
+    const [formData, setFormData] = useState(() => {
+        const profile = getUserProfile();
+        return {
+            name: profile.name,
+            email: profile.email,
+            age: profile.age || "",
+            gender: profile.gender || "prefer-not-to-say",
+        };
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -22,11 +25,19 @@ export default function PersonalInfoForm() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        // Simulate save
+        // Persist
+        const currentProfile = getUserProfile();
+        saveUserProfile({
+            ...currentProfile,
+            name: formData.name,
+            age: Number(formData.age),
+            gender: formData.gender as any
+        });
+
         setTimeout(() => {
             setIsLoading(false);
             alert("Profil bilgileri güncellendi!");
-        }, 1000);
+        }, 800);
     };
 
     return (

@@ -19,7 +19,9 @@ export interface UserProfile {
     };
 }
 
-export const currentUser: UserProfile = {
+export const STORAGE_KEY = 'book_aggregator_user_profile';
+
+const DEFAULT_USER: UserProfile = {
     id: "u123",
     name: "Remzi User",
     email: "remzi@example.com",
@@ -27,13 +29,31 @@ export const currentUser: UserProfile = {
     gender: "male",
     joinedDate: "2024-01-15",
     interests: ["Edebiyat", "Tarih", "Kişisel Gelişim"],
-    favoriteBookIds: ["1", "4", "7"], // Dealing with mock IDs from books.ts
+    favoriteBookIds: ["1", "4", "7"],
     favoriteVendors: ["Amazon TR", "D&R"],
     notificationPreferences: {
         email: true,
         sms: false,
         marketing: true,
     }
+};
+
+export const currentUser: UserProfile = DEFAULT_USER;
+
+export const getUserProfile = (): UserProfile => {
+    if (typeof window === 'undefined') return DEFAULT_USER;
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return DEFAULT_USER;
+    try {
+        return JSON.parse(stored);
+    } catch (e) {
+        return DEFAULT_USER;
+    }
+};
+
+export const saveUserProfile = (profile: UserProfile): void => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
 };
 
 // Helper to get full book objects for favorites

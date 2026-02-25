@@ -1,5 +1,6 @@
 import type { Book } from "@/types";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface BookCardProps {
     book: Book;
@@ -13,31 +14,33 @@ export default function BookCard({ book }: BookCardProps) {
 
     return (
         <Card className="group relative flex flex-col h-full overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all duration-300 hover:shadow-soft hover:-translate-y-1">
-            {/* Top Row: Store & Price */}
-            <div className="flex items-center justify-between px-3 py-2 text-[10px] font-medium text-secondary border-b border-border/40">
-                <div className="flex items-center gap-1.5">
+            {/* Top Row: Store count & Best Price */}
+            <div className="flex items-center justify-between px-3 py-2 text-[10px] font-medium border-b border-border/40 bg-slate-50/50">
+                <div className="flex items-center gap-2">
                     {hasStock ? (
                         <>
-                            <span className="text-accent font-bold bg-accent/5 px-2 py-0.5 rounded-full">
+                            <span className="text-accent font-bold bg-accent/10 px-2 py-0.5 rounded-full border border-accent/20">
                                 {currency}{minPrice.toFixed(2)}
                             </span>
-                            {book.originalPrice && book.originalPrice > minPrice && (
-                                <span className="text-muted-foreground line-through decoration-red-400/50">
-                                    {currency}{book.originalPrice.toFixed(2)}
+
+                            {/* Prominent Multi-Store Badge */}
+                            {book.vendors.length > 1 ? (
+                                <div className="flex items-center gap-1 text-primary-foreground bg-primary px-2 py-0.5 rounded-full font-bold shadow-sm">
+                                    <span className="w-1 h-1 bg-white rounded-full animate-pulse"></span>
+                                    {book.vendors.length} Mağazada
+                                </div>
+                            ) : (
+                                <span className="text-secondary opacity-80">
+                                    {inStockVendors[0]?.name}
                                 </span>
                             )}
                         </>
                     ) : (
-                        <span className="text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded-full">
+                        <span className="text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
                             Stokta Yok
                         </span>
                     )}
                 </div>
-                {hasStock && book.originalPrice && book.originalPrice > minPrice && (
-                    <span className="text-[9px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded-sm">
-                        -%{Math.round(((book.originalPrice - minPrice) / book.originalPrice) * 100)}
-                    </span>
-                )}
             </div>
 
             {/* Image Area: Contained & Padded */}

@@ -1,27 +1,33 @@
 import pLimit from 'p-limit';
 import { supabase } from './supabase';
-import { scrapeDRPage, ScrapedBook, discoverBooksFromCategory } from './scraper-dr';
+import { scrapeDRPage, ScrapedBook, discoverBooksFromCategory, scrapeBooksFromList } from './scraper-dr';
+import { scrapeKirmiziKediPage, discoverBooksFromKirmiziKediCategory, scrapeKirmiziKediFromList } from './scraper-kirmizikedi';
+import { scrapeBkmKitapPage, scrapeBkmKitapFromList } from './scraper-bkmkitap';
+import { scrapeKitapyurduPage, discoverBooksFromKitapyurduCategory, scrapeKitapyurduFromList } from './scraper-kitapyurdu';
 import { jitter } from './utils';
 
 // Configuration
-const CONCURRENCY_LIMIT = 10; // 10-15 is safe for single IP
+const CONCURRENCY_LIMIT = 50; // Increased for large store support
 const limit = pLimit(CONCURRENCY_LIMIT);
 
 /**
  * Saves or updates a book and its price in Supabase.
  */
-async function syncToDatabase(scrapedData: ScrapedBook) {
+export async function syncToDatabase(scrapedData: ScrapedBook, storeName: string) {
     try {
-        // 1. Get Store ID (D&R)
+        // 1. Get Store ID
         const { data: store } = await supabase
             .from('stores')
             .select('id')
-            .eq('name', 'D&R')
+            .eq('name', storeName)
             .single();
 
-        if (!store) throw new Error("D&R store not found in DB");
+        if (!store) {
+            console.error(`[ERROR] Store "${storeName}" not found in database. Please add it to "stores" table.`);
+            return false;
+        }
 
-        // 2. Upsert Book
+        // 2. Upsert Book (Always match by ISBN)
         const { data: book, error: bookError } = await supabase
             .from('books')
             .upsert({
@@ -37,7 +43,7 @@ async function syncToDatabase(scrapedData: ScrapedBook) {
 
         if (bookError) throw bookError;
 
-        // 3. Upsert Price
+        // 3. Upsert Price (Match by book_id and store_id)
         const { error: priceError } = await supabase
             .from('book_prices')
             .upsert({
@@ -53,7 +59,7 @@ async function syncToDatabase(scrapedData: ScrapedBook) {
 
         return true;
     } catch (error: any) {
-        console.error(`DB Sync Error for ISBN ${scrapedData.isbn}: ${error.message}`);
+        console.error(`DB Sync Error for ISBN ${scrapedData.isbn} (${storeName}): ${error.message}`);
         return false;
     }
 }
@@ -63,14 +69,13 @@ async function syncToDatabase(scrapedData: ScrapedBook) {
  */
 async function syncPriceOnly(data: Partial<ScrapedBook>) {
     try {
-        // Find the price record by URL to get the book_id
         const { data: priceRecord } = await supabase
             .from('book_prices')
             .select('book_id, id')
             .eq('url', data.url)
             .single();
 
-        if (!priceRecord) return false; // Book not in DB, needs full crawl
+        if (!priceRecord) return false;
 
         const { error } = await supabase
             .from('book_prices')
@@ -92,47 +97,124 @@ async function syncPriceOnly(data: Partial<ScrapedBook>) {
 /**
  * Main function to crawl a category and update books in parallel.
  */
-export async function crawlAndSyncCategory(categoryUrl: string, maxPages: number = 1) {
-    console.log(`--- Starting Crawl for Category: ${categoryUrl} ---`);
+export async function crawlAndSyncCategory(categoryUrl: string, storeName: string, maxPages: number = 1) {
+    console.log(`--- Starting Crawl [${storeName}]: ${categoryUrl} ---`);
 
-    // 1. Discover URLs
-    const urls = await discoverBooksFromCategory(categoryUrl, maxPages);
+    // 1. Get Store ID Upfront
+    const { data: storeRecord } = await supabase
+        .from('stores')
+        .select('id')
+        .eq('name', storeName)
+        .single();
+
+    if (!storeRecord) {
+        console.error(`[ERROR] Store "${storeName}" not found in database.`);
+        return;
+    }
+    const storeId = storeRecord.id;
+
+    // 2. Decide which discovery function to use
+    let urls: string[] = [];
+    if (storeName === 'D&R') {
+        urls = await discoverBooksFromCategory(categoryUrl, maxPages);
+    } else if (storeName === 'Kırmızı Kedi') {
+        urls = await discoverBooksFromKirmiziKediCategory(categoryUrl, maxPages);
+    } else if (storeName === 'BKM Kitap') {
+        const discovered: string[] = [];
+        for (let p = 1; p <= maxPages; p++) {
+            const listBooks = await scrapeBkmKitapFromList(categoryUrl, p);
+            if (listBooks.length === 0) break;
+            listBooks.forEach(b => {
+                if (b.url && !discovered.includes(b.url)) {
+                    discovered.push(b.url);
+                }
+            });
+            console.log(`Found ${discovered.length} total books so far (Page ${p}).`);
+        }
+        urls = discovered;
+    } else if (storeName === 'Kitapyurdu') {
+        urls = await discoverBooksFromKitapyurduCategory(categoryUrl, maxPages);
+    }
+
     console.log(`Discovered ${urls.length} book URLs.`);
 
-    // 2. Process in Parallel with Rate Limiting
-    const tasks = urls.map((url, index) => {
-        return limit(async () => {
-            // Add a small jittered delay between starting tasks to avoid burst
-            await jitter(100, 500);
+    // 3. Process in Batches
+    const CHUNK_SIZE = 1000; // Slightly smaller chunks for faster DB checks
+    const SKIP_THRESHOLD_HOURS = 48;
 
-            console.log(`[${index + 1}/${urls.length}] Processing: ${url}`);
+    for (let i = 0; i < urls.length; i += CHUNK_SIZE) {
+        const chunk = urls.slice(i, i + CHUNK_SIZE);
+        console.log(`[Processor] Checking chunk ${i / CHUNK_SIZE + 1} for fresh data...`);
 
-            const data = await scrapeDRPage(url);
-            if (data) {
-                const success = await syncToDatabase(data);
-                if (success) {
-                    console.log(`[OK] Synced: ${data.title}`);
+        // --- SMART SKIP LOGIC ---
+        // Find URLs in this chunk that were updated within the last 48 hours
+        const thresholdDate = new Date(Date.now() - SKIP_THRESHOLD_HOURS * 60 * 60 * 1000).toISOString();
+
+        const { data: freshPrices } = await supabase
+            .from('book_prices')
+            .select('url')
+            .eq('store_id', storeId)
+            .in('url', chunk)
+            .gt('updated_at', thresholdDate);
+
+        const freshUrls = new Set((freshPrices || []).map(p => p.url));
+        const filteredChunk = chunk.filter(url => !freshUrls.has(url));
+
+        if (freshUrls.size > 0) {
+            console.log(`[Processor] Skipping ${freshUrls.size} books (Updated < ${SKIP_THRESHOLD_HOURS}h ago). Remaining in chunk: ${filteredChunk.length}`);
+        }
+
+        const tasks = filteredChunk.map((url, index) => {
+            const globalIndex = i + index + 1;
+            return limit(async () => {
+                await jitter(200, 800);
+                if (globalIndex % 50 === 0) {
+                    console.log(`[${globalIndex}/${urls.length}] Scraping ${storeName}: ${url}`);
                 }
-            } else {
-                console.warn(`[SKIP] Failed to scrape: ${url}`);
-            }
-        });
-    });
 
-    await Promise.all(tasks);
-    console.log(`--- Finished Crawl for Category: ${categoryUrl} ---`);
+                let data = null;
+                if (storeName === 'D&R') {
+                    data = await scrapeDRPage(url);
+                } else if (storeName === 'Kırmızı Kedi') {
+                    data = await scrapeKirmiziKediPage(url);
+                } else if (storeName === 'BKM Kitap') {
+                    data = await scrapeBkmKitapPage(url);
+                } else if (storeName === 'Kitapyurdu') {
+                    data = await scrapeKitapyurduPage(url);
+                }
+
+                if (data) {
+                    await syncToDatabase(data, storeName);
+                } else {
+                    console.warn(`[SKIP] Failed to scrape: ${url}`);
+                }
+            });
+        });
+
+        await Promise.all(tasks);
+    }
+    console.log(`--- Finished Crawl [${storeName}]: ${categoryUrl} ---`);
 }
 
 /**
  * Fast-update all prices in a category by only scanning list pages.
  */
-export async function fastUpdateCategory(categoryUrl: string, maxPages: number = 1) {
-    console.log(`--- Starting FAST Price Update: ${categoryUrl} ---`);
+export async function fastUpdateCategory(categoryUrl: string, storeName: string, maxPages: number = 1) {
+    console.log(`--- Starting FAST Price Update [${storeName}]: ${categoryUrl} ---`);
 
     for (let page = 1; page <= maxPages; page++) {
-        console.log(`Scanning list page ${page}...`);
-        const { scrapeBooksFromList } = require('./scraper-dr');
-        const books = await scrapeBooksFromList(categoryUrl, page);
+        console.log(`Scanning ${storeName} list page ${page}...`);
+
+        let books: Partial<ScrapedBook>[] = [];
+        if (storeName === 'D&R') {
+            books = await scrapeBooksFromList(categoryUrl, page);
+        } else if (storeName === 'Kırmızı Kedi') {
+            books = await scrapeKirmiziKediFromList(categoryUrl, page);
+        } else if (storeName === 'BKM Kitap') {
+            books = await scrapeBkmKitapFromList(categoryUrl, page);
+        } else if (storeName === 'Kitapyurdu') {
+            books = await scrapeKitapyurduFromList(categoryUrl, page);
+        }
 
         if (books.length === 0) break;
 
@@ -148,7 +230,7 @@ export async function fastUpdateCategory(categoryUrl: string, maxPages: number =
         await Promise.all(tasks);
         await jitter(500, 1000);
     }
-    console.log(`--- Finished FAST Update: ${categoryUrl} ---`);
+    console.log(`--- Finished FAST Update [${storeName}]: ${categoryUrl} ---`);
 }
 
 // Example Run

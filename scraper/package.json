@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "crawl": "ts-node src/main.ts",
-    "crawl:fast": "ts-node src/main.ts --fast"
+    "crawl:fast": "ts-node src/main.ts --fast",
+    "scrape:dr": "ts-node src/main.ts --store \"D&R\"",
+    "scrape:kirmizikedi": "ts-node src/main.ts --store \"Kırmızı Kedi\"",
+    "start": "ts-node src/main.ts"
   },
   "keywords": [],
   "author": "",

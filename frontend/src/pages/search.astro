@@ -2,9 +2,27 @@
 import Layout from "../layouts/Layout.astro";
 import Container from "@/components/ui/container";
 import SearchInterface from "../components/SearchInterface";
-import { fetchBooks } from "@/lib/fetchBooks";
+import { supabase } from "@/lib/supabase";
 
-const books = await fetchBooks();
+import { normalizeCategory } from "@/lib/fetchBooks";
+
+// Fetch all unique categories
+const { data } = await supabase.from('books').select('categories').order('id', { ascending: false }).limit(2000);
+const uniqueCategories = new Set<string>();
+if (data) {
+  data.forEach((book: any) => {
+    if (book.categories) {
+      book.categories.forEach((cat: string) => {
+          uniqueCategories.add(normalizeCategory(cat));
+      });
+    }
+  });
+}
+const allCategories = Array.from(uniqueCategories)
+    .filter(cat => cat !== "Genel") // Filter out generic for sidebar to keep it focused
+    .sort();
+
+const q = Astro.url.searchParams.get('q') || "";
 ---
 
 <Layout title="Arama Sonuçları">
@@ -13,6 +31,6 @@ const books = await fetchBooks();
        <h1 class="text-3xl font-bold font-serif mb-2 text-ink">Ara ve Keşfet</h1>
        <p class="text-muted-foreground">Bir sonraki okumanız için en iyi fiyatları bulun.</p>
     </div>
-    <SearchInterface client:load initialBooks={books} />
+    <SearchInterface client:load initialQuery={q} initialCategories={allCategories} />
   </div>
 </Layout>

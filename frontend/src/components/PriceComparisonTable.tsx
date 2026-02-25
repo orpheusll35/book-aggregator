@@ -63,7 +63,7 @@ export default function PriceComparisonTable({ vendors }: PriceComparisonTablePr
                                 {vendor.inStock ? `${vendor.currency} ${vendor.price.toFixed(2)}` : "Stokta Yok"}
                             </TableCell>
                             <TableCell className="text-right">
-                                <Button size="sm" className={cn(index === 0 ? "bg-accent hover:bg-accent/90" : "bg-ink hover:bg-ink/90")} asChild>
+                                <Button size="sm" className="bg-accent hover:bg-accent/90 text-white" asChild>
                                     <a href={vendor.url} target="_blank" rel="noopener noreferrer">
                                         Mağazaya Git <ExternalLink className="ml-2 h-3 w-3" />
                                     </a>

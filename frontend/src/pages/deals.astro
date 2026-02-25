@@ -3,15 +3,9 @@ import Layout from "../layouts/Layout.astro";
 import Container from "@/components/ui/container";
 import SectionHeader from "@/components/ui/section-header";
 import BookCard from "@/components/BookCard";
-import { fetchBooks } from "@/lib/fetchBooks";
+import { fetchDeals } from "@/lib/fetchBooks";
 
-const books = await fetchBooks();
-
-// Filter books that have a discount (originalPrice > price of first vendor)
-// Note: In a real app we'd compare against the best price or specific vendor price
-const dealBooks = books.filter(book => 
-    book.originalPrice && book.vendors[0] && book.originalPrice > book.vendors[0].price
-);
+const dealBooks = await fetchDeals(100);
 
 ---
 

@@ -44,28 +44,59 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 /**
+ * Global state for API key rotation
+ */
+let currentKeyIndex = 0;
+
+/**
  * Builds a ScraperAPI URL to bypass Cloudflare.
- * Returns the original URL if SCRAPER_API_KEY is not set.
+ * Supports multiple comma-separated keys in SCRAPER_API_KEY.
  */
 export function buildScraperApiUrl(targetUrl: string, renderJs: boolean = false, premium: boolean = false): string {
-    const apiKey = process.env.SCRAPER_API_KEY;
-    if (!apiKey) {
-        console.warn('⚠️ SCRAPER_API_KEY is not set in .env. Falling back to direct request (might get blocked).');
+    const rawKeys = process.env.SCRAPER_API_KEY;
+    if (!rawKeys) {
+        console.warn('⚠️ SCRAPER_API_KEY is not set in .env. Falling back to direct request.');
         return targetUrl;
     }
 
-    // ScraperAPI syntax: http://api.scraperapi.com?api_key=KEY&url=URL
+    const keys = rawKeys.split(',').map(k => k.trim()).filter(k => k.length > 0);
+    if (keys.length === 0) return targetUrl;
+
+    // Rotate through keys
+    const apiKey = keys[currentKeyIndex % keys.length];
+    currentKeyIndex++;
+
+    if (keys.length > 1 && currentKeyIndex === 1) {
+        console.log(`ℹ️ Multi-key mode active: Using ${keys.length} ScraperAPI keys.`);
+    }
+
     let apiUrl = `http://api.scraperapi.com?api_key=${apiKey}&url=${encodeURIComponent(targetUrl)}`;
 
-    // If JS rendering is needed (useful for Cloudflare challenges)
-    if (renderJs) {
-        apiUrl += '&render=true';
-    }
-
-    // Add premium=true if needed for hard-to-scrape sites like D&R
-    if (premium) {
-        apiUrl += '&premium=true';
-    }
+    if (renderJs) apiUrl += '&render=true';
+    if (premium) apiUrl += '&premium=true';
 
     return apiUrl;
+}
+
+/**
+ * Decodes HTML entities in a string.
+ */
+export function decodeHtmlEntities(str: string): string {
+    if (!str) return str;
+
+    // Numeric entities
+    let decoded = str.replace(/&#(\d+);/g, (match, grp) => String.fromCharCode(parseInt(grp, 10)));
+    decoded = decoded.replace(/&#x([\da-f]+);/gi, (match, grp) => String.fromCharCode(parseInt(grp, 16)));
+
+    // Common named entities
+    const entityMap: Record<string, string> = {
+        '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&apos;': "'",
+        '&nbsp;': ' ', '&ouml;': 'ö', '&Ouml;': 'Ö', '&ccedil;': 'ç', '&Ccedil;': 'Ç',
+        '&uuml;': 'ü', '&Uuml;': 'Ü', '&shy;': '', '&rsquo;': "'", '&lsquo;': "'",
+        '&rdquo;': '"', '&ldquo;': '"'
+    };
+
+    decoded = decoded.replace(/&[a-z0-9]+;/gi, (match) => entityMap[match] || match);
+
+    return decoded.trim();
 }

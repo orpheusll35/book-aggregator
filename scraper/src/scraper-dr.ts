@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { getHeaders, jitter, buildScraperApiUrl } from './utils';
+import { getHeaders, jitter, buildScraperApiUrl, decodeHtmlEntities } from './utils';
 
 export interface ScrapedBook {
     title: string;
@@ -53,7 +53,12 @@ export async function scrapeDRPage(url: string, retries = 3): Promise<ScrapedBoo
                 originalPriceText = salePriceText;
             }
 
-            const author = $('.author a').first().text().trim() || $('.product-author a').text().trim();
+            const author = $('.author a').first().text().trim() ||
+                $('.product-author a').text().trim() ||
+                $('.authors-wrapper a').first().text().trim() ||
+                $('.js-wrapper-author a').first().text().trim() ||
+                $('.authors-wrapper').text().replace('Yazar:', '').trim() ||
+                $('h2.author').text().replace('Yazar:', '').trim();
 
             let publisher = '';
             $('a').each((i, el) => {
@@ -102,7 +107,10 @@ export async function scrapeDRPage(url: string, retries = 3): Promise<ScrapedBoo
                 isbn = isbnMatch[0];
             }
 
-            const inStock = !html.toLowerCase().includes('tükendi') && !html.toLowerCase().includes('temin edilememektedir');
+            const inStock = $('.js-add-basket').length > 0 &&
+                !html.toLowerCase().includes('tükendi') &&
+                !html.toLowerCase().includes('temin edilememektedir') &&
+                !html.toLowerCase().includes('stokta yok');
 
             if (!isbn) {
                 // Not finding an ISBN might mean we hit a captcha or incomplete page, forcing a retry
@@ -115,12 +123,20 @@ export async function scrapeDRPage(url: string, retries = 3): Promise<ScrapedBoo
                 return null;
             }
 
+            const cleanPrice = (text: string) => {
+                if (!text) return '';
+                // D&R prices can be messy: "279,50 TL \n %5 \n 264,50 TL"
+                // We want to extract the last monetary value
+                const parts = text.split('\n').map(p => p.trim()).filter(p => p.includes('TL'));
+                return parts.length > 0 ? parts[parts.length - 1] : text.trim();
+            };
+
             return {
-                title,
-                author,
-                publisher,
-                price: priceText,
-                originalPrice: originalPriceText,
+                title: decodeHtmlEntities(title),
+                author: decodeHtmlEntities(author),
+                publisher: decodeHtmlEntities(publisher),
+                price: cleanPrice(priceText),
+                originalPrice: cleanPrice(originalPriceText),
                 isbn,
                 inStock,
                 imageUrl,
@@ -257,10 +273,18 @@ export async function scrapeBooksFromList(categoryUrl: string, page: number, ret
                 const url = href ? (href.startsWith('http') ? href : `https://www.dr.com.tr${href}`) : '';
 
                 // Try multiple price selectors
-                const price = card.find('.prd-price-current, .campaign-price, .salePrice, .product-price').first().text().trim();
-                const originalPrice = card.find('.prd-price-old, .oldPrice').first().text().trim();
+                const rawPrice = card.find('.prd-price-current, .campaign-price, .salePrice, .product-price').first().text().trim();
+                const cleanPrice = (text: string) => {
+                    if (!text) return '';
+                    const parts = text.split('\n').map(p => p.trim()).filter(p => p.includes('TL'));
+                    return parts.length > 0 ? parts[parts.length - 1] : text.trim();
+                };
+                const price = cleanPrice(rawPrice);
+                const originalPrice = cleanPrice(card.find('.prd-price-old, .oldPrice').first().text().trim());
 
-                const inStock = !card.text().toLowerCase().includes('tükendi') && !card.text().toLowerCase().includes('temin edilememektedir');
+                const inStock = !card.text().toLowerCase().includes('tükendi') &&
+                    !card.text().toLowerCase().includes('temin edilememektedir') &&
+                    !card.text().toLowerCase().includes('stokta yok');
 
                 if (url && price) {
                     books.push({

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles, RefreshCw, ArrowRight, BookOpen } from "lucide-react";
-import { currentUser } from "@/data/user";
+import { currentUser, getUserProfile } from "@/data/user";
 import type { Book } from "@/types";
 import BookCard from "./BookCard";
 
@@ -10,38 +10,45 @@ export default function SurpriseMe({ books }: { books: Book[] }) {
     const [suggestion, setSuggestion] = useState<Book | null>(null);
     const [isAnimating, setIsAnimating] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [user, setUser] = useState(() => getUserProfile());
 
     const generateSuggestion = () => {
         setIsAnimating(true);
+        const currentUserData = getUserProfile();
+        setUser(currentUserData);
 
-        // Logic:
-        // 1. Filter books that match user interests
-        // 2. Exclude books already in favorites
-        // 3. Pick random
+        const favorites = currentUserData.favoriteBookIds;
+        const interests = currentUserData.interests;
 
-        // If no interests match, pick from highly rated books
+        // Since categories are now standardized to match interests exactly
+        const targetCategories = new Set(interests);
 
-        const favorites = currentUser.favoriteBookIds;
+        // 1. Filter in-stock books matching interests
+        let pool = books.filter(book => {
+            const isInStock = book.vendors.some(v => v.inStock);
+            const matchesInterest = book.categories.some(cat => targetCategories.has(cat));
+            const isNotFavorite = !favorites.includes(book.id);
+            return isInStock && matchesInterest && isNotFavorite;
+        });
 
-        let pool = books.filter(book =>
-            // Matches at least one interest
-            book.categories.some(cat => currentUser.interests.includes(cat)) &&
-            // Not in favorites
-            !favorites.includes(book.id)
-        );
-
+        // 2. Fallback: If no direct interest match, look for any in-stock books
         if (pool.length === 0) {
-            // Fallback: Top rated books not in favorites
-            pool = books.filter(book => book.rating >= 4.5 && !favorites.includes(book.id));
+            pool = books.filter(book => {
+                const isInStock = book.vendors.some(v => v.inStock);
+                const isNotFavorite = !favorites.includes(book.id);
+                return isInStock && isNotFavorite;
+            });
         }
 
         setTimeout(() => {
             if (pool.length > 0) {
                 const randomIndex = Math.floor(Math.random() * pool.length);
                 setSuggestion(pool[randomIndex]);
+            } else {
+                setSuggestion(null);
             }
             setIsAnimating(false);
-        }, 800); // Fake delay for effect
+        }, 800);
     };
 
     const handleOpenChange = (open: boolean) => {
