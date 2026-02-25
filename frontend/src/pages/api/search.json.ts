@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { supabase } from '@/lib/supabase';
-import { mapDbBookToBook } from '@/lib/fetchBooks';
+import { mapDbBookToBook, normalizeForSearch } from '@/lib/fetchBooks';
 
 export const GET: APIRoute = async ({ request }) => {
     const url = new URL(request.url);
@@ -11,9 +11,7 @@ export const GET: APIRoute = async ({ request }) => {
     if (!query && categories.length === 0) {
         return new Response(JSON.stringify([]), {
             status: 200,
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         });
     }
 
@@ -33,12 +31,13 @@ export const GET: APIRoute = async ({ request }) => {
         `);
 
     if (query) {
-        // Build a broad search pattern to overcome Postgres collation issues
-        // We search for both 'i' and 'İ' versions if 'i' or 'ı' is in the query
-        const trQuery = query.replace(/i/g, 'İ').replace(/ı/g, 'I');
-        const altQuery = query.replace(/İ/g, 'i').replace(/I/g, 'ı');
+        // Create a wildcard pattern to bypass Turkish collation issues (i vs İ)
+        // We replace Turkish-sensitive chars with '_' which matches any single character
+        const wildcardPattern = query.replace(/[iİıIçÇşŞğĞüÜöÖ]/g, '_');
 
-        supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,author.ilike.%${query}%,title.ilike.%${trQuery}%,title.ilike.%${altQuery}%`);
+        // Search in title or author using both original and wildcard pattern
+        // This ensures we catch the record even if collation fails
+        supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,author.ilike.%${query}%,title.ilike.%${wildcardPattern}%,author.ilike.%${wildcardPattern}%`);
     }
 
     // We don't filter by categories in the supabaseQuery anymore, 
@@ -56,10 +55,13 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const books = (dbBooks || []).map(mapDbBookToBook).filter(book => {
-        // Final precise filter in JS using Turkish locale
-        const searchQueryNormalized = query.toLocaleLowerCase('tr-TR');
-        const titleMatches = book.title.toLocaleLowerCase('tr-TR').includes(searchQueryNormalized);
-        const authorMatches = book.author.toLocaleLowerCase('tr-TR').includes(searchQueryNormalized);
+        // Final precise filter in JS using extreme normalization
+        const normalizedQuery = normalizeForSearch(query);
+        const normalizedTitle = normalizeForSearch(book.title);
+        const normalizedAuthor = normalizeForSearch(book.author);
+
+        const titleMatches = normalizedTitle.includes(normalizedQuery);
+        const authorMatches = normalizedAuthor.includes(normalizedQuery);
 
         const matchesQuery = !query || titleMatches || authorMatches;
         const matchesCategory = categories.length === 0 || book.categories.some(cat => categories.includes(cat));
@@ -69,8 +71,6 @@ export const GET: APIRoute = async ({ request }) => {
 
     return new Response(JSON.stringify(books), {
         status: 200,
-        headers: {
-            'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
     });
 };

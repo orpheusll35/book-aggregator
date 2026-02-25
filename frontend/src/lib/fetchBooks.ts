@@ -205,7 +205,7 @@ export function decodeText(str: string): string {
         return String.fromCharCode(parseInt(grp, 16));
     });
 
-    // 4. Handle Named HTML Entities (Common Turkish ones)
+    // 4. Handle Named HTML Entities (Comprehensive Turkish & common ones)
     const entities: Record<string, string> = {
         '&nbsp;': ' ',
         '&amp;': '&',
@@ -225,18 +225,56 @@ export function decodeText(str: string): string {
         '&ugrave;': 'ù', '&Ugrave;': 'Ù',
         '&agrave;': 'à', '&Agrave;': 'À',
         '&egrave;': 'è', '&Egrave;': 'È',
-        '&nbsp': ' '
+        '&nbsp': ' ',
+        '&rsquo': "'",
+        // Handle common double-encoding artifacts or missing semicolons
+        '&ouml': 'ö', '&Ouml': 'Ö',
+        '&ccedil': 'ç', '&Ccedil': 'Ç',
+        '&uuml': 'ü', '&Uuml': 'Ü',
+        '&Icirc;': 'İ', '&icirc;': 'i',
+        '&THORN;': 'Ş', '&thorn;': 'ş',
+        '&ETH;': 'Ğ', '&eth;': 'ğ',
+        '&Yacute;': 'İ', '&yacute;': 'ı',
+        '&scedil;': 'ş', '&Scedil;': 'Ş'
     };
 
-    decoded = decoded.replace(/&[a-z0-9]+;/gi, (match) => {
-        return entities[match] || match;
+    decoded = decoded.replace(/&[a-z0-9#]+;?/gi, (match) => {
+        // Remove trailing semicolon if it exists for the lookup
+        const lookup = match.endsWith(';') ? match : match;
+        const result = entities[lookup] || entities[lookup + ';'] || match;
+        return result;
     });
 
-    // Special case for frequently seen Kitapyurdu artifacts
-    decoded = decoded.replace(/&ouml/g, 'ö').replace(/&ccedil/g, 'ç').replace(/&uuml/g, 'ü')
-        .replace(/&Ouml/g, 'Ö').replace(/&Ccedil/g, 'Ç').replace(/&Uuml/g, 'Ü');
+    // Special case for frequently seen Kitapyurdu/D&R patterns 
+    // that might be incomplete entities
+    decoded = decoded.replace(/&[oO]uml/g, (m) => m.toLowerCase().includes('o') ? (m[1] === 'O' ? 'Ö' : 'ö') : m)
+        .replace(/&[cC]cedil/g, (m) => m[1] === 'C' ? 'Ç' : 'ç')
+        .replace(/&[uU]uml/g, (m) => m[1] === 'U' ? 'Ü' : 'ü')
+        .replace(/&[iI]circ/g, (m) => m[1] === 'I' ? 'İ' : 'i')
+        .replace(/&[sS]cedil/g, (m) => m[1] === 'S' ? 'Ş' : 'ş')
+        .replace(/&[gG]breve/g, (m) => m[1] === 'G' ? 'Ğ' : 'ğ');
 
-    return decoded;
+    return decoded.trim();
+}
+
+/**
+ * Normalizes text for search by:
+ * 1. Lowercasing with Turkish locale
+ * 2. Replacing Turkish specific chars with ASCII equivalents
+ * 3. Removing extra spaces
+ */
+export function normalizeForSearch(str: string): string {
+    if (!str) return "";
+    return str
+        .toLocaleLowerCase('tr-TR')
+        .replace(/ı/g, 'i')
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
 export function mapDbBookToBook(b: any): Book {
