@@ -1,11 +1,13 @@
-import { currentUser, getFavoriteBooks } from "@/data/user";
+import { getFavoriteBooks } from "@/data/user";
 import BookCard from "@/components/BookCard";
 import { Store, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/auth/AuthContext";
 import type { Book } from "@/types";
 
 export default function FavoritesList({ books }: { books: Book[] }) {
-    const favoriteBooks = getFavoriteBooks(books, currentUser.id);
+    const { profile } = useAuth();
+    const favoriteBooks = getFavoriteBooks(books, profile?.favorite_book_ids || []);
 
     return (
         <div className="space-y-8">
@@ -19,14 +21,7 @@ export default function FavoritesList({ books }: { books: Book[] }) {
                         {favoriteBooks.map(book => (
                             <div key={book.id} className="relative group">
                                 <BookCard book={book} />
-                                <Button
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 shadow-md"
-                                    title="Favorilerden Kaldır"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
+                                {/* Favorilerden Kaldır butonu için logic eklenebilir ama şu an FavoriteButton zaten her yerde var */}
                             </div>
                         ))}
                     </div>
@@ -41,17 +36,18 @@ export default function FavoritesList({ books }: { books: Book[] }) {
                     Favori Kitapçılarım
                 </h3>
                 <div className="flex flex-wrap gap-4">
-                    {currentUser.favoriteVendors.map(vendor => (
-                        <div key={vendor} className="flex items-center gap-3 p-4 rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow">
-                            <div className="p-2 bg-primary/10 rounded-full text-primary">
-                                <Store className="h-5 w-5" />
+                    {profile?.favorite_vendor_ids && profile.favorite_vendor_ids.length > 0 ? (
+                        (profile.favorite_vendor_ids as string[]).map((vendor: string) => (
+                            <div key={vendor} className="flex items-center gap-3 p-4 rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow">
+                                <div className="p-2 bg-primary/10 rounded-full text-primary">
+                                    <Store className="h-5 w-5" />
+                                </div>
+                                <span className="font-medium">{vendor}</span>
                             </div>
-                            <span className="font-medium">{vendor}</span>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        <p className="text-muted-foreground">Henüz favori kitapçı eklemediniz.</p>
+                    )}
                 </div>
             </div>
         </div>

@@ -3,13 +3,15 @@ import { Button } from "@/components/ui/button";
 import PersonalInfoForm from "./PersonalInfoForm";
 import FavoritesList from "./FavoritesList";
 import InterestSelector from "./InterestSelector";
-import { User, Heart, Star, LogOut } from "lucide-react";
+import { User, Heart, Star, LogOut, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/auth/AuthContext";
 import type { Book } from "@/types";
 
 type Tab = "personal" | "favorites" | "interests";
 
-export default function ProfilePageWrapper({ books }: { books: Book[] }) {
+function ProfilePageContent({ books }: { books: Book[] }) {
+    const { user, profile, loading, signOut } = useAuth();
     const [activeTab, setActiveTab] = useState<Tab>("personal");
 
     const tabs = [
@@ -18,16 +20,40 @@ export default function ProfilePageWrapper({ books }: { books: Book[] }) {
         { id: "interests", label: "İlgi Alanlarım", icon: Star },
     ];
 
+    if (loading) {
+        return (
+            <div className="flex h-[400px] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="text-center py-20 bg-white rounded-2xl border shadow-sm">
+                <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h2 className="text-xl font-bold mb-2">Giriş Yapılmadı</h2>
+                <p className="text-muted-foreground">Profilinizi görüntülemek için lütfen giriş yapın.</p>
+            </div>
+        );
+    }
+
+    const initials = profile?.full_name
+        ? profile.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+        : user?.email?.[0].toUpperCase() || "??";
+
     return (
         <div className="flex flex-col md:flex-row gap-8">
             {/* Sidebar Navigation */}
             <aside className="w-full md:w-64 space-y-4">
                 <div className="p-6 bg-white rounded-2xl border shadow-sm text-center">
                     <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center text-primary text-2xl font-bold mb-4">
-                        RU
+                        {initials}
                     </div>
-                    <h2 className="font-serif font-bold text-xl text-ink">Örnek Kullanıcı</h2>
-                    <p className="text-sm text-muted-foreground">remzi@example.com</p>
+                    <h2 className="font-serif font-bold text-xl text-ink truncate px-2">
+                        {profile?.full_name || "Yeni Kullanıcı"}
+                    </h2>
+                    <p className="text-sm text-muted-foreground truncate px-2">{user?.email}</p>
                 </div>
 
                 <nav className="flex flex-col gap-1">
@@ -50,7 +76,10 @@ export default function ProfilePageWrapper({ books }: { books: Book[] }) {
                             </button>
                         );
                     })}
-                    <button className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-red-600 hover:bg-red-50 transition-colors mt-4">
+                    <button
+                        onClick={() => signOut()}
+                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-red-600 hover:bg-red-50 transition-colors mt-4 w-full"
+                    >
                         <LogOut className="w-4 h-4" />
                         Çıkış Yap
                     </button>
@@ -68,5 +97,15 @@ export default function ProfilePageWrapper({ books }: { books: Book[] }) {
                 {activeTab === "interests" && <InterestSelector />}
             </div>
         </div>
+    );
+}
+
+import { AuthProvider } from "@/components/auth/AuthContext";
+
+export default function ProfilePageWrapper({ books }: { books: Book[] }) {
+    return (
+        <AuthProvider>
+            <ProfilePageContent books={books} />
+        </AuthProvider>
     );
 }

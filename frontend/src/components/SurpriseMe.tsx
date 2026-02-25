@@ -2,23 +2,21 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles, RefreshCw, ArrowRight, BookOpen } from "lucide-react";
-import { currentUser, getUserProfile } from "@/data/user";
+import { useAuth } from "@/components/auth/AuthContext";
 import type { Book } from "@/types";
 import BookCard from "./BookCard";
 
-export default function SurpriseMe({ books }: { books: Book[] }) {
+function SurpriseMeContent({ books }: { books: Book[] }) {
+    const { profile } = useAuth();
     const [suggestion, setSuggestion] = useState<Book | null>(null);
     const [isAnimating, setIsAnimating] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-    const [user, setUser] = useState(() => getUserProfile());
 
     const generateSuggestion = () => {
         setIsAnimating(true);
-        const currentUserData = getUserProfile();
-        setUser(currentUserData);
 
-        const favorites = currentUserData.favoriteBookIds;
-        const interests = currentUserData.interests;
+        const favorites = profile?.favorite_book_ids || [];
+        const interests = profile?.interests || [];
 
         // Since categories are now standardized to match interests exactly
         const targetCategories = new Set(interests);
@@ -114,5 +112,15 @@ export default function SurpriseMe({ books }: { books: Book[] }) {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+    );
+}
+
+import { AuthProvider } from "@/components/auth/AuthContext";
+
+export default function SurpriseMe({ books }: { books: Book[] }) {
+    return (
+        <AuthProvider>
+            <SurpriseMeContent books={books} />
+        </AuthProvider>
     );
 }

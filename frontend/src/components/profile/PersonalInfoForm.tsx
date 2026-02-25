@@ -1,59 +1,94 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { currentUser, getUserProfile, saveUserProfile } from "@/data/user";
-import { User, Mail, Calendar, Save } from "lucide-react";
+import { saveUserProfile } from "@/data/user";
+import { useAuth } from "@/components/auth/AuthContext";
+import { User, Mail, Calendar, Save, Loader2 } from "lucide-react";
 
 export default function PersonalInfoForm() {
+    const { user, profile, refreshProfile } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
-    const [formData, setFormData] = useState(() => {
-        const profile = getUserProfile();
-        return {
-            name: profile.name,
-            email: profile.email,
-            age: profile.age || "",
-            gender: profile.gender || "prefer-not-to-say",
-        };
+    const [formData, setFormData] = useState({
+        name: "",
+        username: "",
+        email: "",
+        birthDate: "",
+        gender: "prefer-not-to-say",
     });
+
+    useEffect(() => {
+        if (profile) {
+            setFormData({
+                name: profile.full_name || "",
+                username: profile.username || "",
+                email: user?.email || "",
+                birthDate: profile.birth_date || "",
+                gender: (profile as any).gender || "prefer-not-to-say",
+            });
+        }
+    }, [profile, user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!user) return;
+
         setIsLoading(true);
-        // Persist
-        const currentProfile = getUserProfile();
-        saveUserProfile({
-            ...currentProfile,
-            name: formData.name,
-            age: Number(formData.age),
-            gender: formData.gender as any
+        const { error } = await saveUserProfile({
+            id: user.id,
+            full_name: formData.name,
+            username: formData.username,
+            birth_date: formData.birthDate,
+            interests: profile?.interests || [],
+            favorite_book_ids: profile?.favorite_book_ids || [],
+            favorite_vendor_ids: profile?.favorite_vendor_ids || []
         });
 
-        setTimeout(() => {
-            setIsLoading(false);
+        if (error) {
+            alert("Profil güncellenirken bir hata oluştu: " + error.message);
+        } else {
+            await refreshProfile();
             alert("Profil bilgileri güncellendi!");
-        }, 800);
+        }
+        setIsLoading(false);
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6 max-w-xl">
             <div className="space-y-4">
-                <div className="grid gap-2">
-                    <Label htmlFor="name">Ad Soyad</Label>
-                    <div className="relative">
-                        <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            id="name"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="pl-9"
-                        />
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                        <Label htmlFor="name">Ad Soyad</Label>
+                        <div className="relative">
+                            <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                id="name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                className="pl-9"
+                                required
+                            />
+                        </div>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="username">Kullanıcı Adı</Label>
+                        <div className="relative">
+                            <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                id="username"
+                                name="username"
+                                value={formData.username}
+                                onChange={handleChange}
+                                className="pl-9"
+                                required
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -76,16 +111,17 @@ export default function PersonalInfoForm() {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="age">Yaş</Label>
+                        <Label htmlFor="birthDate">Doğum Tarihi</Label>
                         <div className="relative">
                             <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
-                                id="age"
-                                name="age"
-                                type="number"
-                                value={formData.age}
+                                id="birthDate"
+                                name="birthDate"
+                                type="date"
+                                value={formData.birthDate}
                                 onChange={handleChange}
                                 className="pl-9"
+                                required
                             />
                         </div>
                     </div>

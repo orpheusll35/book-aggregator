@@ -1,0 +1,171 @@
+2026-02-25T03:15:18.750Z - [SEARCH] Query: "düşün"
+2026-02-25T03:15:18.751Z - [SEARCH] OR Logic: title.ilike.%düşün%,author.ilike.%düşün%,title.ilike.%düşün%,author.ilike.%düşün%
+2026-02-25T03:15:22.250Z - [SEARCH] Supabase Error: canceling statement due to statement timeout
+2026-02-25T03:15:41.230Z - [SEARCH] Query: "debug"
+2026-02-25T03:15:41.231Z - [SEARCH] OR Logic: title.ilike.%debug%,author.ilike.%debug%,title.ilike.%debug%,author.ilike.%debug%
+2026-02-25T03:15:44.144Z - [SEARCH] DB Results: 3
+2026-02-25T03:15:44.148Z - [SEARCH] Final Results: 3
+2026-02-25T03:16:29.216Z - [SEARCH] Query: "düşün"
+2026-02-25T03:16:29.217Z - [SEARCH] OR Logic: title.ilike.%düşün%,author.ilike.%düşün%,title.ilike.%düşün%,author.ilike.%düşün%
+2026-02-25T03:16:32.461Z - [SEARCH] Supabase Error: canceling statement due to statement timeout
+2026-02-25T03:17:08.830Z - [SEARCH] Query: "düşün"
+2026-02-25T03:17:08.830Z - [SEARCH] Starting Two-Stage Search for Query: "düşün"
+2026-02-25T03:17:08.831Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%düşün%,author.ilike.%düşün%,title.ilike.%d___n%,author.ilike.%d___n%
+2026-02-25T03:17:09.404Z - [SEARCH] Stage 1 Results: 1000 IDs found
+2026-02-25T03:17:09.581Z - [SEARCH] Stage 2 Error: Bad Request
+2026-02-25T03:17:46.182Z - [SEARCH] Query: "düşün"
+2026-02-25T03:17:46.183Z - [SEARCH] Starting Two-Stage Search for Query: "düşün"
+2026-02-25T03:17:46.183Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%düşün%,author.ilike.%düşün%,title.ilike.%d___n%,author.ilike.%d___n%
+2026-02-25T03:17:46.615Z - [SEARCH] Stage 1 Results: 1000 IDs found
+2026-02-25T03:17:46.616Z - [SEARCH] Stage 2: Fetching chunk 1/10 (100 IDs)
+2026-02-25T03:17:47.343Z - [SEARCH] Stage 2: Fetching chunk 2/10 (100 IDs)
+2026-02-25T03:17:48.046Z - [SEARCH] Stage 2: Fetching chunk 3/10 (100 IDs)
+2026-02-25T03:17:48.673Z - [SEARCH] Stage 2: Fetching chunk 4/10 (100 IDs)
+2026-02-25T03:17:49.219Z - [SEARCH] Stage 2: Fetching chunk 5/10 (100 IDs)
+2026-02-25T03:17:49.805Z - [SEARCH] Stage 2: Fetching chunk 6/10 (100 IDs)
+2026-02-25T03:17:50.249Z - [SEARCH] Stage 2: Fetching chunk 7/10 (100 IDs)
+2026-02-25T03:17:50.714Z - [SEARCH] Stage 2: Fetching chunk 8/10 (100 IDs)
+2026-02-25T03:17:51.223Z - [SEARCH] Stage 2: Fetching chunk 9/10 (100 IDs)
+2026-02-25T03:17:51.705Z - [SEARCH] Stage 2: Fetching chunk 10/10 (100 IDs)
+2026-02-25T03:17:51.945Z - [SEARCH] Query: "düşün"
+2026-02-25T03:17:51.946Z - [SEARCH] Starting Two-Stage Search for Query: "düşün"
+2026-02-25T03:17:51.946Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%düşün%,author.ilike.%düşün%,title.ilike.%d___n%,author.ilike.%d___n%
+2026-02-25T03:17:52.191Z - [SEARCH] Stage 2 Total Details Fetched: 1000
+2026-02-25T03:17:52.298Z - [SEARCH] Final Results (after JS filter): 17
+2026-02-25T03:17:52.307Z - [SEARCH] Stage 1 Results: 1000 IDs found
+2026-02-25T03:17:52.308Z - [SEARCH] Stage 2: Fetching chunk 1/10 (100 IDs)
+2026-02-25T03:17:52.443Z - [SEARCH] Stage 2: Fetching chunk 2/10 (100 IDs)
+2026-02-25T03:17:52.582Z - [SEARCH] Stage 2: Fetching chunk 3/10 (100 IDs)
+2026-02-25T03:17:52.720Z - [SEARCH] Stage 2: Fetching chunk 4/10 (100 IDs)
+2026-02-25T03:17:52.852Z - [SEARCH] Stage 2: Fetching chunk 5/10 (100 IDs)
+2026-02-25T03:17:52.983Z - [SEARCH] Stage 2: Fetching chunk 6/10 (100 IDs)
+2026-02-25T03:17:53.112Z - [SEARCH] Stage 2: Fetching chunk 7/10 (100 IDs)
+2026-02-25T03:17:53.239Z - [SEARCH] Stage 2: Fetching chunk 8/10 (100 IDs)
+2026-02-25T03:17:53.381Z - [SEARCH] Stage 2: Fetching chunk 9/10 (100 IDs)
+2026-02-25T03:17:53.510Z - [SEARCH] Stage 2: Fetching chunk 10/10 (100 IDs)
+2026-02-25T03:17:53.646Z - [SEARCH] Stage 2 Total Details Fetched: 1000
+2026-02-25T03:17:53.751Z - [SEARCH] Final Results (after JS filter): 17
+2026-02-25T03:17:55.575Z - [SEARCH] Query: "düşün"
+2026-02-25T03:17:55.575Z - [SEARCH] Starting Two-Stage Search for Query: "düşün"
+2026-02-25T03:17:55.576Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%düşün%,author.ilike.%düşün%,title.ilike.%d___n%,author.ilike.%d___n%
+2026-02-25T03:17:55.820Z - [SEARCH] Stage 1 Results: 1000 IDs found
+2026-02-25T03:17:55.821Z - [SEARCH] Stage 2: Fetching chunk 1/10 (100 IDs)
+2026-02-25T03:17:55.964Z - [SEARCH] Stage 2: Fetching chunk 2/10 (100 IDs)
+2026-02-25T03:17:56.098Z - [SEARCH] Stage 2: Fetching chunk 3/10 (100 IDs)
+2026-02-25T03:17:56.232Z - [SEARCH] Stage 2: Fetching chunk 4/10 (100 IDs)
+2026-02-25T03:17:56.367Z - [SEARCH] Stage 2: Fetching chunk 5/10 (100 IDs)
+2026-02-25T03:17:56.496Z - [SEARCH] Stage 2: Fetching chunk 6/10 (100 IDs)
+2026-02-25T03:17:56.628Z - [SEARCH] Stage 2: Fetching chunk 7/10 (100 IDs)
+2026-02-25T03:17:56.759Z - [SEARCH] Stage 2: Fetching chunk 8/10 (100 IDs)
+2026-02-25T03:17:56.884Z - [SEARCH] Stage 2: Fetching chunk 9/10 (100 IDs)
+2026-02-25T03:17:57.022Z - [SEARCH] Stage 2: Fetching chunk 10/10 (100 IDs)
+2026-02-25T03:17:57.157Z - [SEARCH] Stage 2 Total Details Fetched: 1000
+2026-02-25T03:17:57.263Z - [SEARCH] Final Results (after JS filter): 17
+2026-02-25T03:17:57.744Z - [SEARCH] Query: "düşün"
+2026-02-25T03:17:57.745Z - [SEARCH] Starting Two-Stage Search for Query: "düşün"
+2026-02-25T03:17:57.746Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%düşün%,author.ilike.%düşün%,title.ilike.%d___n%,author.ilike.%d___n%
+2026-02-25T03:17:57.981Z - [SEARCH] Stage 1 Results: 1000 IDs found
+2026-02-25T03:17:57.982Z - [SEARCH] Stage 2: Fetching chunk 1/10 (100 IDs)
+2026-02-25T03:17:58.119Z - [SEARCH] Stage 2: Fetching chunk 2/10 (100 IDs)
+2026-02-25T03:17:58.262Z - [SEARCH] Stage 2: Fetching chunk 3/10 (100 IDs)
+2026-02-25T03:17:58.399Z - [SEARCH] Stage 2: Fetching chunk 4/10 (100 IDs)
+2026-02-25T03:17:58.529Z - [SEARCH] Stage 2: Fetching chunk 5/10 (100 IDs)
+2026-02-25T03:17:58.660Z - [SEARCH] Stage 2: Fetching chunk 6/10 (100 IDs)
+2026-02-25T03:17:58.791Z - [SEARCH] Stage 2: Fetching chunk 7/10 (100 IDs)
+2026-02-25T03:17:58.924Z - [SEARCH] Stage 2: Fetching chunk 8/10 (100 IDs)
+2026-02-25T03:17:59.055Z - [SEARCH] Stage 2: Fetching chunk 9/10 (100 IDs)
+2026-02-25T03:17:59.149Z - [SEARCH] Stage 2: Fetching chunk 10/10 (100 IDs)
+2026-02-25T03:17:59.279Z - [SEARCH] Stage 2 Total Details Fetched: 1000
+2026-02-25T03:17:59.384Z - [SEARCH] Final Results (after JS filter): 17
+2026-02-25T03:18:08.223Z - [SEARCH] Query: "içimizdeki"
+2026-02-25T03:18:08.224Z - [SEARCH] Starting Two-Stage Search for Query: "içimizdeki"
+2026-02-25T03:18:08.224Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%içimizdeki%,author.ilike.%içimizdeki%,title.ilike.%___m_zdek_%,author.ilike.%___m_zdek_%
+2026-02-25T03:18:09.459Z - [SEARCH] Query: "DÜŞÜN"
+2026-02-25T03:18:09.460Z - [SEARCH] Starting Two-Stage Search for Query: "DÜŞÜN"
+2026-02-25T03:18:09.460Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%DÜŞÜN%,author.ilike.%DÜŞÜN%,title.ilike.%D___N%,author.ilike.%D___N%
+2026-02-25T03:18:09.829Z - [SEARCH] Stage 1 Results: 1000 IDs found
+2026-02-25T03:18:09.830Z - [SEARCH] Stage 2: Fetching chunk 1/10 (100 IDs)
+2026-02-25T03:18:09.943Z - [SEARCH] Stage 2: Fetching chunk 2/10 (100 IDs)
+2026-02-25T03:18:10.058Z - [SEARCH] Stage 2: Fetching chunk 3/10 (100 IDs)
+2026-02-25T03:18:10.174Z - [SEARCH] Stage 2: Fetching chunk 4/10 (100 IDs)
+2026-02-25T03:18:10.281Z - [SEARCH] Stage 2: Fetching chunk 5/10 (100 IDs)
+2026-02-25T03:18:10.419Z - [SEARCH] Stage 2: Fetching chunk 6/10 (100 IDs)
+2026-02-25T03:18:10.557Z - [SEARCH] Stage 2: Fetching chunk 7/10 (100 IDs)
+2026-02-25T03:18:10.695Z - [SEARCH] Stage 2: Fetching chunk 8/10 (100 IDs)
+2026-02-25T03:18:10.827Z - [SEARCH] Stage 2: Fetching chunk 9/10 (100 IDs)
+2026-02-25T03:18:10.958Z - [SEARCH] Stage 2: Fetching chunk 10/10 (100 IDs)
+2026-02-25T03:18:11.068Z - [SEARCH] Stage 2 Total Details Fetched: 1000
+2026-02-25T03:18:11.170Z - [SEARCH] Final Results (after JS filter): 17
+2026-02-25T03:18:11.426Z - [SEARCH] Stage 1 Error: canceling statement due to statement timeout
+2026-02-25T03:18:14.005Z - [SEARCH] Query: "İÇİM"
+2026-02-25T03:18:14.005Z - [SEARCH] Starting Two-Stage Search for Query: "İÇİM"
+2026-02-25T03:18:14.006Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%İÇİM%,author.ilike.%İÇİM%,title.ilike.%___M%,author.ilike.%___M%
+2026-02-25T03:18:14.156Z - [SEARCH] Stage 1 Results: 1000 IDs found
+2026-02-25T03:18:14.157Z - [SEARCH] Stage 2: Fetching chunk 1/10 (100 IDs)
+2026-02-25T03:18:14.457Z - [SEARCH] Stage 2: Fetching chunk 2/10 (100 IDs)
+2026-02-25T03:18:14.850Z - [SEARCH] Stage 2: Fetching chunk 3/10 (100 IDs)
+2026-02-25T03:18:15.232Z - [SEARCH] Stage 2: Fetching chunk 4/10 (100 IDs)
+2026-02-25T03:18:15.572Z - [SEARCH] Stage 2: Fetching chunk 5/10 (100 IDs)
+2026-02-25T03:18:15.873Z - [SEARCH] Stage 2: Fetching chunk 6/10 (100 IDs)
+2026-02-25T03:18:16.209Z - [SEARCH] Stage 2: Fetching chunk 7/10 (100 IDs)
+2026-02-25T03:18:16.540Z - [SEARCH] Stage 2: Fetching chunk 8/10 (100 IDs)
+2026-02-25T03:18:16.862Z - [SEARCH] Stage 2: Fetching chunk 9/10 (100 IDs)
+2026-02-25T03:18:17.227Z - [SEARCH] Stage 2: Fetching chunk 10/10 (100 IDs)
+2026-02-25T03:18:17.565Z - [SEARCH] Stage 2 Total Details Fetched: 1000
+2026-02-25T03:18:17.675Z - [SEARCH] Final Results (after JS filter): 3
+2026-02-25T03:18:20.492Z - [SEARCH] Query: "İÇİM"
+2026-02-25T03:18:20.492Z - [SEARCH] Starting Two-Stage Search for Query: "İÇİM"
+2026-02-25T03:18:20.493Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%İÇİM%,author.ilike.%İÇİM%,title.ilike.%___M%,author.ilike.%___M%
+2026-02-25T03:18:20.621Z - [SEARCH] Stage 1 Results: 1000 IDs found
+2026-02-25T03:18:20.622Z - [SEARCH] Stage 2: Fetching chunk 1/10 (100 IDs)
+2026-02-25T03:18:20.753Z - [SEARCH] Stage 2: Fetching chunk 2/10 (100 IDs)
+2026-02-25T03:18:20.851Z - [SEARCH] Stage 2: Fetching chunk 3/10 (100 IDs)
+2026-02-25T03:18:20.948Z - [SEARCH] Stage 2: Fetching chunk 4/10 (100 IDs)
+2026-02-25T03:18:21.043Z - [SEARCH] Stage 2: Fetching chunk 5/10 (100 IDs)
+2026-02-25T03:18:21.137Z - [SEARCH] Stage 2: Fetching chunk 6/10 (100 IDs)
+2026-02-25T03:18:21.234Z - [SEARCH] Stage 2: Fetching chunk 7/10 (100 IDs)
+2026-02-25T03:18:21.332Z - [SEARCH] Stage 2: Fetching chunk 8/10 (100 IDs)
+2026-02-25T03:18:21.427Z - [SEARCH] Stage 2: Fetching chunk 9/10 (100 IDs)
+2026-02-25T03:18:21.524Z - [SEARCH] Stage 2: Fetching chunk 10/10 (100 IDs)
+2026-02-25T03:18:21.625Z - [SEARCH] Stage 2 Total Details Fetched: 1000
+2026-02-25T03:18:21.729Z - [SEARCH] Final Results (after JS filter): 3
+2026-02-25T03:18:27.777Z - [SEARCH] Query: "İÇİMİZ"
+2026-02-25T03:18:27.777Z - [SEARCH] Starting Two-Stage Search for Query: "İÇİMİZ"
+2026-02-25T03:18:27.778Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%İÇİMİZ%,author.ilike.%İÇİMİZ%,title.ilike.%___M_Z%,author.ilike.%___M_Z%
+2026-02-25T03:18:28.220Z - [SEARCH] Query: "icimizdeki"
+2026-02-25T03:18:28.221Z - [SEARCH] Starting Two-Stage Search for Query: "icimizdeki"
+2026-02-25T03:18:28.222Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%icimizdeki%,author.ilike.%icimizdeki%,title.ilike.%_c_m_zdek_%,author.ilike.%_c_m_zdek_%
+2026-02-25T03:18:28.248Z - [SEARCH] Stage 1 Results: 1000 IDs found
+2026-02-25T03:18:28.248Z - [SEARCH] Stage 2: Fetching chunk 1/10 (100 IDs)
+2026-02-25T03:18:28.491Z - [SEARCH] Stage 2: Fetching chunk 2/10 (100 IDs)
+2026-02-25T03:18:28.846Z - [SEARCH] Stage 2: Fetching chunk 3/10 (100 IDs)
+2026-02-25T03:18:29.190Z - [SEARCH] Stage 2: Fetching chunk 4/10 (100 IDs)
+2026-02-25T03:18:29.549Z - [SEARCH] Stage 2: Fetching chunk 5/10 (100 IDs)
+2026-02-25T03:18:29.951Z - [SEARCH] Stage 2: Fetching chunk 6/10 (100 IDs)
+2026-02-25T03:18:30.345Z - [SEARCH] Stage 2: Fetching chunk 7/10 (100 IDs)
+2026-02-25T03:18:30.716Z - [SEARCH] Stage 2: Fetching chunk 8/10 (100 IDs)
+2026-02-25T03:18:31.119Z - [SEARCH] Stage 2: Fetching chunk 9/10 (100 IDs)
+2026-02-25T03:18:31.414Z - [SEARCH] Stage 1 Error: canceling statement due to statement timeout
+2026-02-25T03:18:31.504Z - [SEARCH] Stage 2: Fetching chunk 10/10 (100 IDs)
+2026-02-25T03:18:31.896Z - [SEARCH] Stage 2 Total Details Fetched: 1000
+2026-02-25T03:18:32.034Z - [SEARCH] Final Results (after JS filter): 18
+2026-02-25T03:18:38.980Z - [SEARCH] Query: "İÇİM"
+2026-02-25T03:18:38.980Z - [SEARCH] Starting Two-Stage Search for Query: "İÇİM"
+2026-02-25T03:18:38.981Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%İÇİM%,author.ilike.%İÇİM%,title.ilike.%___M%,author.ilike.%___M%
+2026-02-25T03:18:39.184Z - [SEARCH] Stage 1 Results: 1000 IDs found
+2026-02-25T03:18:39.185Z - [SEARCH] Stage 2: Fetching chunk 1/10 (100 IDs)
+2026-02-25T03:18:39.321Z - [SEARCH] Stage 2: Fetching chunk 2/10 (100 IDs)
+2026-02-25T03:18:39.454Z - [SEARCH] Stage 2: Fetching chunk 3/10 (100 IDs)
+2026-02-25T03:18:39.585Z - [SEARCH] Stage 2: Fetching chunk 4/10 (100 IDs)
+2026-02-25T03:18:39.713Z - [SEARCH] Stage 2: Fetching chunk 5/10 (100 IDs)
+2026-02-25T03:18:39.841Z - [SEARCH] Stage 2: Fetching chunk 6/10 (100 IDs)
+2026-02-25T03:18:39.966Z - [SEARCH] Stage 2: Fetching chunk 7/10 (100 IDs)
+2026-02-25T03:18:40.090Z - [SEARCH] Stage 2: Fetching chunk 8/10 (100 IDs)
+2026-02-25T03:18:40.214Z - [SEARCH] Stage 2: Fetching chunk 9/10 (100 IDs)
+2026-02-25T03:18:40.338Z - [SEARCH] Stage 2: Fetching chunk 10/10 (100 IDs)
+2026-02-25T03:18:40.468Z - [SEARCH] Stage 2 Total Details Fetched: 1000
+2026-02-25T03:18:40.574Z - [SEARCH] Final Results (after JS filter): 3
+2026-02-25T03:18:48.410Z - [SEARCH] Query: "İÇİMİZDEKİ ŞEYTAN"
+2026-02-25T03:18:48.411Z - [SEARCH] Starting Two-Stage Search for Query: "İÇİMİZDEKİ ŞEYTAN"
+2026-02-25T03:18:48.411Z - [SEARCH] SQL Stage 1 (IDs): title.ilike.%İÇİMİZDEKİ ŞEYTAN%,author.ilike.%İÇİMİZDEKİ ŞEYTAN%,title.ilike.%___M_ZDEK_ _EYTAN%,author.ilike.%___M_ZDEK_ _EYTAN%
+2026-02-25T03:18:51.633Z - [SEARCH] Stage 1 Error: canceling statement due to statement timeout

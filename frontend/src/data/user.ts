@@ -1,64 +1,34 @@
-import type { Book } from "../types";
+import { supabase } from "@/lib/supabase";
+import type { Book } from "@/types";
 
 export interface UserProfile {
     id: string;
-    name: string;
-    email: string;
-    avatar?: string;
-    age?: number;
-    gender?: "male" | "female" | "other" | "prefer-not-to-say";
-    bio?: string;
-    joinedDate: string;
+    full_name: string;
+    username?: string;
+    birth_date?: string;
+    avatar_url?: string;
     interests: string[];
-    favoriteBookIds: string[];
-    favoriteVendors: string[];
-    notificationPreferences: {
-        email: boolean;
-        sms: boolean;
-        marketing: boolean;
-    };
+    favorite_book_ids: string[];
+    favorite_vendor_ids: string[];
 }
 
-export const STORAGE_KEY = 'book_aggregator_user_profile';
+export async function saveUserProfile(profile: any): Promise<{ error: any }> {
+    const { error } = await supabase
+        .from('profiles')
+        .upsert({
+            id: profile.id,
+            full_name: profile.full_name || profile.name,
+            username: profile.username,
+            birth_date: profile.birth_date || profile.birthDate,
+            interests: profile.interests,
+            favorite_book_ids: profile.favorite_book_ids || profile.favoriteBookIds,
+            favorite_vendor_ids: profile.favorite_vendor_ids || profile.favoriteVendorIds,
+            updated_at: new Date().toISOString()
+        });
+    return { error };
+}
 
-const DEFAULT_USER: UserProfile = {
-    id: "u123",
-    name: "Remzi User",
-    email: "remzi@example.com",
-    age: 28,
-    gender: "male",
-    joinedDate: "2024-01-15",
-    interests: ["Edebiyat", "Tarih", "Kişisel Gelişim"],
-    favoriteBookIds: ["1", "4", "7"],
-    favoriteVendors: ["Amazon TR", "D&R"],
-    notificationPreferences: {
-        email: true,
-        sms: false,
-        marketing: true,
-    }
-};
-
-export const currentUser: UserProfile = DEFAULT_USER;
-
-export const getUserProfile = (): UserProfile => {
-    if (typeof window === 'undefined') return DEFAULT_USER;
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return DEFAULT_USER;
-    try {
-        return JSON.parse(stored);
-    } catch (e) {
-        return DEFAULT_USER;
-    }
-};
-
-export const saveUserProfile = (profile: UserProfile): void => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
-};
-
-// Helper to get full book objects for favorites
-export const getFavoriteBooks = (allBooks: Book[], userId: string): Book[] => {
-    // In a real app, we'd fetch based on userId. 
-    // Here we just use the mock currentUser.
-    return allBooks.filter(book => currentUser.favoriteBookIds.includes(book.id));
-};
+export function getFavoriteBooks(books: Book[], favoriteBookIds: string[]): Book[] {
+    if (!favoriteBookIds) return [];
+    return books.filter(book => favoriteBookIds.includes(book.id));
+}
