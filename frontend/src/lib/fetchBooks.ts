@@ -185,7 +185,7 @@ export const normalizeCategory = (cat: string): string => {
 /**
  * Decodes Unicode escape sequences (\uXXXX) and HTML entities (&entity; or &#123;).
  */
-function decodeText(str: string): string {
+export function decodeText(str: string): string {
     if (!str) return str;
 
     let decoded = str;
@@ -233,12 +233,13 @@ function decodeText(str: string): string {
     });
 
     // Special case for frequently seen Kitapyurdu artifacts
-    decoded = decoded.replace(/&ouml/g, 'ö').replace(/&ccedil/g, 'ç').replace(/&uuml/g, 'ü');
+    decoded = decoded.replace(/&ouml/g, 'ö').replace(/&ccedil/g, 'ç').replace(/&uuml/g, 'ü')
+        .replace(/&Ouml/g, 'Ö').replace(/&Ccedil/g, 'Ç').replace(/&Uuml/g, 'Ü');
 
     return decoded;
 }
 
-function mapDbBookToBook(b: any): Book {
+export function mapDbBookToBook(b: any): Book {
     let maxOriginalPrice = 0;
 
     const vendors = b.book_prices?.map((bp: any) => {
