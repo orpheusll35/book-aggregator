@@ -125,8 +125,15 @@ export const GET: APIRoute = async ({ request }) => {
             vendors
         };
     }).filter(book => {
-        if (categories.length === 0) return true;
-        return book.categories.some(cat => categories.includes(cat));
+        // Turkish-aware search filtering
+        const searchQueryNormalized = query.toLocaleLowerCase('tr-TR');
+        const titleMatches = book.title.toLocaleLowerCase('tr-TR').includes(searchQueryNormalized);
+        const authorMatches = book.author.toLocaleLowerCase('tr-TR').includes(searchQueryNormalized);
+
+        const matchesQuery = !query || titleMatches || authorMatches;
+        const matchesCategory = categories.length === 0 || book.categories.some(cat => categories.includes(cat));
+
+        return matchesQuery && matchesCategory;
     });
 
     return new Response(JSON.stringify(books), {

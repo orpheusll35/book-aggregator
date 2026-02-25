@@ -232,7 +232,13 @@ export async function scrapeKirmiziKediFromList(categoryUrl: string, page: numbe
                 (!card.text().toLowerCase().includes('tükendi') && !card.text().toLowerCase().includes('stokta yok'));
 
             if (url && price) {
-                books.push({ title, url, price, originalPrice, inStock });
+                books.push({
+                    title: decodeHtmlEntities(title),
+                    url,
+                    price,
+                    originalPrice,
+                    inStock
+                });
             }
         });
 

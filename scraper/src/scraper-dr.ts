@@ -288,10 +288,10 @@ export async function scrapeBooksFromList(categoryUrl: string, page: number, ret
 
                 if (url && price) {
                     books.push({
-                        title,
+                        title: decodeHtmlEntities(title),
                         url,
                         price,
-                        originalPrice,
+                        originalPrice: decodeHtmlEntities(originalPrice),
                         inStock
                     });
                 }

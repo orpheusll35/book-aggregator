@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import { getHeaders, jitter, buildScraperApiUrl } from './utils';
+import { getHeaders, jitter, buildScraperApiUrl, decodeHtmlEntities } from './utils';
 import { ScrapedBook } from './scraper-kirmizikedi';
 
 /**
@@ -110,9 +110,9 @@ export async function scrapeBkmKitapPage(url: string, retries = 3): Promise<Scra
             }
 
             return {
-                title,
-                author,
-                publisher,
+                title: decodeHtmlEntities(title),
+                author: decodeHtmlEntities(author),
+                publisher: decodeHtmlEntities(publisher),
                 price: priceText,
                 originalPrice,
                 isbn,
@@ -174,14 +174,14 @@ export async function scrapeBkmKitapFromList(categoryUrl: string, page: number):
 
                             if (item && item.url) {
                                 books.push({
-                                    title: item.name,
+                                    title: decodeHtmlEntities(item.name),
                                     url: item.url.startsWith('http') ? item.url : `https://www.bkmkitap.com/${item.url.startsWith('/') ? item.url.slice(1) : item.url}`,
                                     price: item.total_sale_price?.toString(),
                                     originalPrice: item.total_base_price?.toString(),
                                     inStock: item.quantity > 0 || item.available === true,
                                     imageUrl: item.image,
-                                    author: item.model,
-                                    publisher: item.brand,
+                                    author: decodeHtmlEntities(item.model),
+                                    publisher: decodeHtmlEntities(item.brand),
                                     isbn: item.code || item.barcode || '' // T-Soft often uses item.code for ISBN
                                 });
                             }
@@ -208,7 +208,12 @@ export async function scrapeBkmKitapFromList(categoryUrl: string, page: number):
                 const inStock = !card.text().toLowerCase().includes('tükendi') && !card.text().toLowerCase().includes('stokta yok');
 
                 if (bookUrl && title) {
-                    books.push({ title, url: bookUrl, price, inStock });
+                    books.push({
+                        title: decodeHtmlEntities(title),
+                        url: bookUrl,
+                        price,
+                        inStock
+                    });
                 }
             });
         }
