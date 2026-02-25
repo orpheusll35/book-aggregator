@@ -1,0 +1,8 @@
+{
+    "name": "book-aggregator-monorepo",
+    "private": true,
+    "workspaces": [
+        "frontend",
+        "scraper"
+    ]
+}
